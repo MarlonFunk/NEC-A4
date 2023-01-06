@@ -10,7 +10,22 @@ function initalize_population!(size_population, number_of_nodes)
     return population
 end
 
-function get_modularity!()
+function get_modularity!(population, g)
+    L = ne(g)
+    a = adjacency_matrix(g)
+    number_of_nodes = nv(g)
+
+    for i in 1:number_of_nodes
+        tmp = 0
+        # Both not working
+        for index in a[i]
+            if a[i]==1
+                tmp+=1
+            end
+        end
+        println(tmp)
+        println(length(a[i]))
+    end
     return modularity
 end
 
@@ -19,6 +34,7 @@ function get_fitness!(population, g)
     # also the difference in modularity of good partitions may be very small.", but abs is okay?
     
     # Or just modularity squared? Not negative and difference bigger. Just guessing
+    fitness = abs(get_modularity!(population, g))
     return fitness
 end
 
@@ -35,8 +51,13 @@ end
 
 function mutate!(c_alpha_prime)
     # Mutate individuals p.50
-
-    return c
+    index = mod(rand(Int), length(c_alpha_prime)) + 1
+    if c_alpha_prime[index]==1
+        c_alpha_prime[index]=0
+    else
+        c_alpha_prime[index]=1
+    end
+    return mutated
 end
 
 function fittest_indivduals!(fitness, population_prime)
@@ -87,14 +108,14 @@ for generation in range(num_generations)
         mutated_c_beta_prime = mutate!(c_beta_prime)
 
         # Add mutated individuals to P'
-        population_prime.append!(mutated_c_alpha_prime, mutated_c_beta_prime)
+        push!(population_prime, mutated_c_alpha_prime, mutated_c_beta_prime)
     end
 
     # Elitism add best fitted individuals of P to P'
     best_fitted = fittest_indivduals!(fitness, population_prime)
 
-    # Should the population be growing?
-    population.append!(best_fitted)
+    # TODO: Should the population be growing?
+    push!(population, best_fitted)
 
     # Evaluate fitness of all individuals in p
     fitness = get_fitness!(population, g)
