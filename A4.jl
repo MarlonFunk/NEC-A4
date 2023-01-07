@@ -90,13 +90,6 @@ function mutate!(c_alpha_prime)
         c_alpha_prime[index]=1
     end
     return mutated
-    index = mod(rand(Int), length(c_alpha_prime)) + 1
-    if c_alpha_prime[index]==1
-        c_alpha_prime[index]=0
-    else
-        c_alpha_prime[index]=1
-    end
-    return mutated
 end
 
 function fittest_indivduals!(fitness, population_prime)
@@ -148,14 +141,11 @@ for generation in range(num_generations)
 
         # Add mutated individuals to P'
         push!(population_prime, mutated_c_alpha_prime, mutated_c_beta_prime)
-        push!(population_prime, mutated_c_alpha_prime, mutated_c_beta_prime)
     end
 
     # Elitism add best fitted individuals of P to P'
     best_fitted = fittest_indivduals!(fitness, population_prime)
 
-    # TODO: Should the population be growing?
-    push!(population, best_fitted)
     # TODO: Should the population be growing?
     push!(population, best_fitted)
 
