@@ -31,17 +31,41 @@ function get_modularity!(chromosome, g)
 
     end
     modularity = modularity/TWOL
+
+    # Optional Task: Divide chromose by two and call get_modularity again. Compare output
     return modularity
 end
+
+# function get_modularity_optional!(chromosome, g, recursive_call, last_stage_modularity, all_modularitys)
+#     if recursive_call == 3
+#         return
+#     else
+#         modularity = abs(get_modularity!(chromosome, g)) # TODO abs
+#         if modularity > last_stage_modularity
+#             #Continue to split if modularity is growing
+#             step = recursive_call + 1
+#             get_modularity_optional!(chromosome[1:trunc(Int, lastindex(chromosome)/2)], g, step, modularity, all_modularitys)
+#             get_modularity_optional!(chromosome[trunc(Int, lastindex(chromosome)/2):lastindex(chromosome)], g, step, modularity, all_modularitys)
+#         else
+#             # Modularity not growing, so push last stage
+#             push!(all_modularitys, last_stage_modularity)
+#         end
+#     end
+   
+#     return all_modularitys
+# end
 
 function get_fitness!(population, g)
     # MF: In A4.pdf: "Modularity cannot be used directly as the fitness since it may take negative values, and
     # also the difference in modularity of good partitions may be very small.", but abs is okay?
     
-    # Or just modularity squared? Not negative and difference bigger. Just guessing
+    # TODO: Or just modularity squared? Not negative and difference bigger. Just guessing
     fitness = []
+    all_modularitys = []
     for chromosome in population
         push!(fitness,abs(get_modularity!(chromosome, g)))
+        # TODO: How to get new adjacency_matrix of splitted chromosome? Or is it just with delta?
+        # push!(fitness, get_modularity_optional!(chromosome, g, 0, 0, all_modularitys))
     end
     return fitness
 end
