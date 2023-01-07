@@ -122,12 +122,14 @@ e = edges(g)    # Kind of iterator
 
 """
 
-g = loadgraph("A4-networks/20x2+5x2.net", NETFormat())
+# g = loadgraph("A4-networks/20x2+5x2.net", NETFormat())
+# g = loadgraph("A4-networks/256_4_4_2_15_18_p.net", NETFormat())
+g = loadgraph("A4-networks/dolphins.net", NETFormat())
 number_of_nodes = nv(g)
 
 # Define size of population and number of generations
-size_population = 25
-num_generations = 100
+size_population = 100
+num_generations = 1000
 
 # According to U6-Slides.pdf, page 38
 
@@ -185,7 +187,7 @@ let Population = initalize_population!(size_population, number_of_nodes)
         println("------------------------------")
         println("Computation complete!")
         println("Optimal fitness: $max_fitness")
-        println("Optimal population: $max_fitness_population")
+        # println("Optimal population: $max_fitness_population")
         println("------------------------------")
 
 
