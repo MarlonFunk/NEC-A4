@@ -4,9 +4,9 @@ using Random
 
 function initalize_population!(size_population, number_of_nodes)
     population = []
-    for _ in range(size_population)
+    for _ in 1:size_population
         c = rand((0,1), number_of_nodes)
-        population.append!(c)
+        push!(population, c)
     end
     return population
 end
@@ -16,14 +16,15 @@ function get_modularity!(chromosome, g)
     TWOL = ne(g)*2
     a = adjacency_matrix(g)
     number_of_nodes = nv(g)
-    modularity = 0
+    Edges = [] # variable edges already taken in library
     for i in 1:number_of_nodes
-        push!(edges, sum(a[i,:]))
+        push!(Edges, sum(a[i,:]))
     end
+    modularity = 0
     for i in 1:number_of_nodes # Every chromose has number_of_nodes elements
         tmp = 0
         for j in 1:number_of_nodes
-            paranthesis = a[i,j] - (edges[i]*edges[j]/TWOL)
+            paranthesis = a[i,j] - (Edges[i]*Edges[j]/TWOL)
             delta = chromosome[i]*chromosome[j] + (1-chromosome[i])*(1-chromosome[j])
             modularity += paranthesis * delta
         end
@@ -76,25 +77,42 @@ function tournament_selection!(population, fitness, size_population)
     return selection
 end
 
-function uniform_crossover!()
+function uniform_crossover!(first_chromosome, second_chromosome)
     # Uniform crossover p.49 - Swap each gene with probability 0.5
-    return
-end
+    
+    index = rand((0,1), length(first_chromosome)) # TODO: is that probability 0.5?
+    first_offspring = []
+    second_offspring = []
 
-function mutate!(c_alpha_prime)
-    # Mutate individuals p.50
-    index = mod(rand(Int), length(c_alpha_prime)) + 1
-    if c_alpha_prime[index]==1
-        c_alpha_prime[index]=0
-    else
-        c_alpha_prime[index]=1
+    for i in eachindex(first_chromosome)
+        if index[i] == 1
+            # Swap values
+            push!(first_offspring, second_chromosome[i])
+            push!(second_offspring, first_chromosome[i])
+        else
+            # Dont swap values
+            push!(first_offspring, first_chromosome[i])
+            push!(second_offspring, second_chromosome[i])
+        end
     end
-    return mutated
+    return first_offspring, second_offspring
 end
 
-function fittest_indivduals!(fitness, population_prime)
-    # How many of the fittest to return?
-    return fittest
+function mutate!(chromosome)
+    # Mutate individuals p.50
+    index = mod(rand(Int), length(chromosome)) + 1
+    if chromosome[index]==1
+        chromosome[index]=0
+    else
+        chromosome[index]=1
+    end
+    return chromosome
+end
+
+function fittest_indivdual!(fitness)
+    # Return index of fittest individual
+
+    return argmax(fitness)
 end
 
 """
@@ -111,47 +129,70 @@ number_of_nodes = nv(g)
 size_population = 25
 num_generations = 100
 
-highest_modularity_partition = []
-highest_modularity = 0
-
 # According to U6-Slides.pdf, page 38
 
 # Initalize population
 # Population is random array of [[0,1,0,1,1,0...],[0,1,0,1,1,0...] ,[0,1,0,1,1,0...] ...]
-population = initalize_population!(size_population, number_of_nodes)
+let Population = initalize_population!(size_population, number_of_nodes)
 
-# Evaluate fitness of inital population
-fitness = get_fitness!(population, g)
+    # Evaluate fitness of inital population
+    let Fitness = get_fitness!(Population, g)
+        max_fitness = 0
+        max_fitness_population = []
+        sum_fitness = sum(Fitness)
+        # Check for optimum in the beginning, random initialization could be the optimal one
+        if sum_fitness > max_fitness
+            max_fitness = sum_fitness
+            max_fitness_population = Population
+        end
 
-for generation in range(num_generations)
-    population_prime = []
-    for _ in size_population/2
-        # Select two individuals c_alpha, c_beta from P
-        # Here we can choose from p.39 - p.45 what is the easiest?
-        c_alpha, c_beta = tournament_selection!(population, fitness, size_population)
+        for generation in 1:num_generations
+            population_prime = []
+            for _ in size_population/2
+                println("------------------------------")
+                println("Generation: $generation")
+                println("Current fitness: $sum_fitness")
+                println("Optimal fitness: $max_fitness")
+                println("------------------------------")
 
-        # Crossover c_alpha_prime, c_beta_prime
-        # Uniform crossover p.49 - Swap each gene with probability 0.5
-            # Seems very easy to implement lets choose this
-        c_alpha_prime, c_beta_prime = uniform_crossover!()
+                # Select two individuals c_alpha, c_beta from P
+                # Here we can choose from p.39 - p.45 what is the easiest?
+                c_alpha, c_beta = tournament_selection!(Population, Fitness, size_population)
 
-        # Mutate individuals c_alpha_prime, c_beta_prime p.50
-        mutated_c_alpha_prime = mutate!(c_alpha_prime)
-        mutated_c_beta_prime = mutate!(c_beta_prime)
+                # Crossover c_alpha_prime, c_beta_prime
+                # Uniform crossover p.49 - Swap each gene with probability 0.5
+                    # Seems very easy to implement lets choose this
+                c_alpha_prime, c_beta_prime = uniform_crossover!(c_alpha, c_beta)
 
-        # Add mutated individuals to P'
-        push!(population_prime, mutated_c_alpha_prime, mutated_c_beta_prime)
-    end
+                # Mutate individuals c_alpha_prime, c_beta_prime p.50
+                mutated_c_alpha_prime = mutate!(c_alpha_prime)
+                mutated_c_beta_prime = mutate!(c_beta_prime)
 
-    # Elitism add best fitted individuals of P to P'
-    best_fitted = fittest_indivduals!(fitness, population_prime)
+                # Add mutated individuals to P'
+                push!(population_prime, mutated_c_alpha_prime, mutated_c_beta_prime)
+            end
 
-    # TODO: Should the population be growing?
-    push!(population, best_fitted)
+            # Elitism add best fitted individuals of P to P'
+            index_best_fitted = fittest_indivdual!(Fitness)
+            push!(population_prime, Population[index_best_fitted]) # TODO: Should the Population be growing?
+            Population = population_prime
 
-    # Evaluate fitness of all individuals in p
-    fitness = get_fitness!(population, g)
-    
-    # Compare with highest_modularity_partition, highest_modularity and safe if higher
-    # TODO
-end
+            # Evaluate fitness of all individuals in p
+            Fitness = get_fitness!(Population, g)
+            
+        end # end for
+
+        println("------------------------------")
+        println("Computation complete!")
+        println("Optimal fitness: $max_fitness")
+        println("Optimal population: $max_fitness_population")
+        println("------------------------------")
+
+
+        # How to safe the graph?
+        # savegraph("optimal.lgz", max_fitness_population)
+        # t = plot(max_fitness_population)
+        # save(SVG("plot.svg"), t)
+    end #end let
+end #end let
+
