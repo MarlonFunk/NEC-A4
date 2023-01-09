@@ -24,8 +24,9 @@ function get_modularity!(chromosome, g)
     modularity = 0
     for i in 1:number_of_nodes # Every chromose has number_of_nodes elements
         tmp = 0
-        for j in 1:number_of_nodes
+        for j in 1:number_of_nodes 
             paranthesis = a[i,j] - (Edges[i]*Edges[j]/TWOL)
+            # TODO optional: Split chromose here into more chromosomes, just delta changes?
             delta = chromosome[i]*chromosome[j] + (1-chromosome[i])*(1-chromosome[j])
             modularity += paranthesis * delta
         end
