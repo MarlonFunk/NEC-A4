@@ -1,6 +1,10 @@
 using Graphs
 using GraphIO
 using Random
+using StatsBase
+
+@enum Selection tournament=1 roulette=2
+@enum Crossover one_point=1 uniform=2
 
 function initalize_population!(size_population, number_of_nodes)
     population = []
@@ -23,8 +27,9 @@ function get_modularity!(chromosome, g)
     modularity = 0
     for i in 1:number_of_nodes # Every chromose has number_of_nodes elements
         tmp = 0
-        for j in 1:number_of_nodes
+        for j in 1:number_of_nodes 
             paranthesis = a[i,j] - (Edges[i]*Edges[j]/TWOL)
+            # TODO optional: Split chromose here into more chromosomes, just delta changes?
             delta = chromosome[i]*chromosome[j] + (1-chromosome[i])*(1-chromosome[j])
             modularity += paranthesis * delta
         end
@@ -63,8 +68,10 @@ function get_fitness!(population, g)
     fitness = []
     all_modularitys = []
     for chromosome in population
-        push!(fitness,abs(get_modularity!(chromosome, g)))
-        # TODO: How to get new adjacency_matrix of splitted chromosome? Or is it just with delta?
+        push!(fitness,(get_modularity!(chromosome, g)).^2)
+        # push!(fitness,abs(get_modularity!(chromosome, g)))
+
+        # TODO for optional task: How to get new adjacency_matrix of splitted chromosome? Or is it just with delta?
         # push!(fitness, get_modularity_optional!(chromosome, g, 0, 0, all_modularitys))
     end
     return fitness
@@ -72,17 +79,16 @@ end
 
 function tournament_selection!(population, fitness, size_population)
     # Select two individuals c_alpha, c_beta from P
-    # Here we can choose from p.39 - p.45 what is the easiest?
-    # tournament_selection?
-    selection = []
-    for i in 1:2
+    # tournament_selection
+    selec = []
+    for i in 1:2 # rand gives random index of 
         K = 3
         index = []
-        for i in 1:size_population
-            push!(index, mod(rand(Int), K) + 1) #TODO Same element can appear twice
+        for i in 1:K # Get three random indices
+            push!(index, mod(rand(Int), size_population) + 1) #TODO Same element can appear twice
         end
         first_selection = []
-        for j in 1:size_population
+        for j in 1:size_population  # Push element with random indices into first_selection
             if j in index
                 push!(first_selection, (population[j], fitness[j]))
             end
@@ -90,16 +96,33 @@ function tournament_selection!(population, fitness, size_population)
         tmp_fitness = 0
         index = 0
         
-        for x in eachindex(first_selection)
+        for x in eachindex(first_selection) # Get element with highest fitness of three randomly selected
             if tmp_fitness < first_selection[x][2]
                 tmp_fitness = first_selection[x][2]
                 index = x
             end
         end
-        push!(selection, first_selection[index][1])
+        push!(selec, first_selection[index][1])
     end
-    return selection
+    return selec
 end
+
+function roulette_selection!(population, fitness, size_population)
+    # Select two individuals c_alpha, c_beta from P
+    # Rank selection
+    sum_fitness = sum(fitness)
+    # chromosome probability = fitness of chromosome / sum of all fitnesses
+    propabilities = []
+    for c in eachindex(population)
+        tmp_propability = fitness[c]/sum_fitness
+        push!(propabilities, tmp_propability)
+    end
+    
+    selec = sample(population, Weights(Float64.(propabilities)),2, replace=false)
+
+    return selec
+end
+
 
 function uniform_crossover!(first_chromosome, second_chromosome)
     # Uniform crossover p.49 - Swap each gene with probability 0.5
@@ -122,14 +145,42 @@ function uniform_crossover!(first_chromosome, second_chromosome)
     return first_offspring, second_offspring
 end
 
-function mutate!(chromosome)
-    # Mutate individuals p.50
-    index = mod(rand(Int), length(chromosome)) + 1
-    if chromosome[index]==1
-        chromosome[index]=0
-    else
-        chromosome[index]=1
+function one_point_crossover!(first_chromosome, second_chromosome)
+    index = mod(rand(Int), length(first_chromosome)) + 1
+    first_offspring = []
+    second_offspring = []
+
+    for i in eachindex(first_chromosome)
+        if i > index
+            # Swap values
+            push!(first_offspring, second_chromosome[i])
+            push!(second_offspring, first_chromosome[i])
+        else
+            # Dont swap values
+            push!(first_offspring, first_chromosome[i])
+            push!(second_offspring, second_chromosome[i])
+        end
     end
+
+    return first_offspring, second_offspring
+end
+
+function mutate!(chromosome, amount_of_mutations)
+    # Mutate individuals p.50
+    index = []
+    for i in 1:amount_of_mutations
+        push!(index, mod(rand(Int), length(chromosome)) + 1) # Index contains one or more indices
+    end
+    for i in eachindex(chromosome)      # Go over whole chromosome
+        if i in index                   # Swap if in random indices
+            if chromosome[i]==1
+                chromosome[i]=0
+            else
+                chromosome[i]=1
+            end
+        end
+    end
+
     return chromosome
 end
 
@@ -148,7 +199,7 @@ e = edges(g)    # Kind of iterator
 
 # We parse the parameters
 
-if length(ARGS) != 3 && length(ARGS) != 4
+if length(ARGS) != 6 && length(ARGS) != 7
     throw(ArgumentError("Invalid number of parameters."))
 end
 
@@ -160,7 +211,26 @@ number_of_nodes = nv(g)
 # Define size of population and number of generations
 size_population = parse(Int64, ARGS[2])
 num_generations = parse(Int64, ARGS[3])
-outfile = length(ARGS) == 4 ? ARGS[4] : ""
+amount_of_mutations = parse(Int64, ARGS[4])
+selection_str = ARGS[5]
+selection::Selection = if selection_str == "tournament"
+    tournament::Selection
+elseif selection_str == "roulette"
+    roulette::Selection
+else
+    throw(ArgumentError("This selection function is not recognized"))
+end
+crossover_str = ARGS[6]
+crossover::Crossover = if crossover_str == "uniform"
+    uniform::Crossover
+elseif crossover_str == "one_point"
+    one_point::Crossover
+else
+    throw(ArgumentError("This crossover function is not recognized"))
+end
+outfile = length(ARGS) == 7 ? ARGS[7] : ""
+
+println("PARAMETERS: graph_path=$graph_path, size_population=$size_population, num_generations=$num_generations, amount_of_mutations=$amount_of_mutations, selection=$selection_str, crossover=$crossover_str, outfile=$outfile")
 
 # According to U6-Slides.pdf, page 38
 
@@ -172,16 +242,18 @@ let Population = initalize_population!(size_population, number_of_nodes)
     let Fitness = get_fitness!(Population, g)
         max_fitness = 0
         max_fitness_population = []
-        sum_fitness = sum(Fitness)
-        # Check for optimum in the beginning, random initialization could be the optimal one
-        if sum_fitness > max_fitness
-            max_fitness = sum_fitness
-            max_fitness_population = Population
-        end
+
 
         for generation in 1:num_generations
             population_prime = []
-            for _ in size_population/2
+            for a in 1:size_population/2
+                sum_fitness = sum(Fitness)
+                # Check for optimum in the beginning, random initialization could be the optimal one
+                if sum_fitness > max_fitness
+                    max_fitness = sum_fitness
+                    max_fitness_population = Population
+                end
+
                 println("------------------------------")
                 println("Generation: $generation")
                 println("Current fitness: $sum_fitness")
@@ -190,16 +262,24 @@ let Population = initalize_population!(size_population, number_of_nodes)
 
                 # Select two individuals c_alpha, c_beta from P
                 # Here we can choose from p.39 - p.45 what is the easiest?
-                c_alpha, c_beta = tournament_selection!(Population, Fitness, size_population)
-
-                # Crossover c_alpha_prime, c_beta_prime
+                
+                if selection == tournament::Selection
+                    c_alpha, c_beta = tournament_selection!(Population, Fitness, size_population)
+                elseif selection == roulette::Selection
+                    c_alpha, c_beta = roulette_selection!(Population, Fitness, size_population)
+                end
+                
+                # # Crossover c_alpha_prime, c_beta_prime
                 # Uniform crossover p.49 - Swap each gene with probability 0.5
-                    # Seems very easy to implement lets choose this
-                c_alpha_prime, c_beta_prime = uniform_crossover!(c_alpha, c_beta)
+                if crossover == uniform::Crossover
+                    c_alpha_prime, c_beta_prime = uniform_crossover!(c_alpha, c_beta)
+                elseif crossover == one_point::Crossover
+                    c_alpha_prime, c_beta_prime = one_point_crossover!(c_alpha, c_beta)
+                end
 
                 # Mutate individuals c_alpha_prime, c_beta_prime p.50
-                mutated_c_alpha_prime = mutate!(c_alpha_prime)
-                mutated_c_beta_prime = mutate!(c_beta_prime)
+                mutated_c_alpha_prime = mutate!(c_alpha_prime, amount_of_mutations)
+                mutated_c_beta_prime = mutate!(c_beta_prime, amount_of_mutations)
 
                 # Add mutated individuals to P'
                 push!(population_prime, mutated_c_alpha_prime, mutated_c_beta_prime)
