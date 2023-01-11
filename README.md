@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- Install [Julia 1.8](https://julialang.org/downloads/).
+- Install [Julia 1.8](https://julialang.org/downloads/). **It has to be available in the path.**
 
 ## Installation
 
@@ -13,9 +13,14 @@ julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
 ## Usage
 
-Run the script by doing:
+Run the algorithm by doing:
 ```sh
 julia --project=. A4.jl
+```
+
+Run the analysis by doing:
+```sh
+julia --project=. analysis.jl
 ```
 
 Note: During development, when adding or removing a package to the Julia project, regenerate the manifest with `julia --project=. -e 'using Pkg; Pkg.resolve()'`

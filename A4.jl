@@ -146,14 +146,21 @@ e = edges(g)    # Kind of iterator
 
 """
 
-# g = loadgraph("A4-networks/20x2+5x2.net", NETFormat())
-# g = loadgraph("A4-networks/256_4_4_2_15_18_p.net", NETFormat())
-g = loadgraph("A4-networks/dolphins.net", NETFormat())
+# We parse the parameters
+
+if length(ARGS) != 3 && length(ARGS) != 4
+    throw(ArgumentError("Invalid number of parameters."))
+end
+
+graph_path = ARGS[1]
+
+g = loadgraph(graph_path, NETFormat())
 number_of_nodes = nv(g)
 
 # Define size of population and number of generations
-size_population = 100
-num_generations = 1000
+size_population = parse(Int64, ARGS[2])
+num_generations = parse(Int64, ARGS[3])
+outfile = length(ARGS) == 4 ? ARGS[4] : ""
 
 # According to U6-Slides.pdf, page 38
 
@@ -214,6 +221,12 @@ let Population = initalize_population!(size_population, number_of_nodes)
         # println("Optimal population: $max_fitness_population")
         println("------------------------------")
 
+        if outfile != ""
+            # Saving max_fitness to output file
+            open(outfile, "w") do file
+                write(file, "$max_fitness")
+            end
+        end
 
         # How to safe the graph?
         # savegraph("optimal.lgz", max_fitness_population)
