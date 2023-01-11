@@ -15,7 +15,7 @@ for graph in graphs
             for amount_of_mutation in amount_of_mutations
                 for selection in selection_function
                     for crossover in crossover_function
-                        outfile = "results/$graph-$population_size-$number_of_generation-$amount_of_mutation-$selection-$crossover.txt"
+                        outfile = "results/$graph-$population_size-$number_of_generation-$amount_of_mutation-$selection-$crossover.csv"
                         cmd = `julia --project=. A4.jl "A4-networks/$graph" $population_size $number_of_generation $amount_of_mutation "$selection" "$crossover" "$outfile"`
                         run(cmd)
                     end

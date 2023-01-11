@@ -7,9 +7,13 @@ version = "1.0.0"
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 GraphIO = "aa1b3936-2fda-51b9-ab35-c553d3a640a2"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 
 [compat]
 julia = "1.8"
 Graphs = "1.7.4"
 GraphIO = "0.6.0"
 StatsBase = "0.33.21"
+DataFrames = "1.4.4"
+CSV = "0.10.9"

@@ -3,6 +3,9 @@ using GraphIO
 using Random
 using StatsBase
 
+import DataFrames
+import CSV
+
 @enum Selection tournament=1 roulette=2
 @enum Crossover one_point=1 uniform=2
 
@@ -301,11 +304,17 @@ let Population = initalize_population!(size_population, number_of_nodes)
         # println("Optimal population: $max_fitness_population")
         println("------------------------------")
 
-        if outfile != ""
-            # Saving max_fitness to output file
-            open(outfile, "w") do file
-                write(file, "$max_fitness")
-            end
+        if outfile != ""  
+            # Save the parameters and results in a CSV file
+            CSV.write(outfile, DataFrames.DataFrame(
+                "NET Graph" => basename(graph_path),
+                "Population Size" => size_population,
+                "Number of Generations" => num_generations,
+                "Amount of Mutations" => amount_of_mutations,
+                "Selection Function" => selection_str,
+                "Crossover Function" => crossover_str,
+                "Max Fitness" => max_fitness
+            ), append = false)
         end
 
         # How to safe the graph?
