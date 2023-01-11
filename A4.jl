@@ -80,6 +80,7 @@ end
 function tournament_selection!(population, fitness, size_population)
     # Select two individuals c_alpha, c_beta from P
     # tournament_selection
+
     selec = []
     for i in 1:2 # rand gives random index of 
         K = 3
@@ -109,7 +110,7 @@ end
 
 function roulette_selection!(population, fitness, size_population)
     # Select two individuals c_alpha, c_beta from P
-    # Rank selection
+    # roulette selection
     sum_fitness = sum(fitness)
     # chromosome probability = fitness of chromosome / sum of all fitnesses
     propabilities = []
@@ -126,7 +127,6 @@ end
 
 function uniform_crossover!(first_chromosome, second_chromosome)
     # Uniform crossover p.49 - Swap each gene with probability 0.5
-    
     index = rand((0,1), length(first_chromosome)) # TODO: is that probability 0.5?
     first_offspring = []
     second_offspring = []
@@ -242,10 +242,17 @@ let Population = initalize_population!(size_population, number_of_nodes)
     let Fitness = get_fitness!(Population, g)
         max_fitness = 0
         max_fitness_population = []
-
+        sum_fitness = sum(Fitness)
 
         for generation in 1:num_generations
             population_prime = []
+
+            println("------------------------------")
+            println("Generation: $generation")
+            println("Current fitness: $sum_fitness")
+            println("Optimal fitness: $max_fitness")
+            println("------------------------------")
+
             for a in 1:size_population/2
                 sum_fitness = sum(Fitness)
                 # Check for optimum in the beginning, random initialization could be the optimal one
@@ -254,11 +261,7 @@ let Population = initalize_population!(size_population, number_of_nodes)
                     max_fitness_population = Population
                 end
 
-                println("------------------------------")
-                println("Generation: $generation")
-                println("Current fitness: $sum_fitness")
-                println("Optimal fitness: $max_fitness")
-                println("------------------------------")
+
 
                 # Select two individuals c_alpha, c_beta from P
                 # Here we can choose from p.39 - p.45 what is the easiest?
