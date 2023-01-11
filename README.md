@@ -15,15 +15,16 @@ julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
 Run the algorithm by doing:
 ```sh
-julia --project=. A4.jl
+julia --project=. A4.jl <graph_path> <population_size> <number_of_generations> <amount_of_mutations> <selection_function> <crossover_function>
 ```
+**Note**: The selection function implemented are the following: `roulette`, `tournament`. The crossover function implemented are the following: `one_point`, `uniform`.
 
 Run the analysis by doing:
 ```sh
 julia --project=. analysis.jl
 ```
 
-Note: During development, when adding or removing a package to the Julia project, regenerate the manifest with `julia --project=. -e 'using Pkg; Pkg.resolve()'`
+**Note**: During development, when adding or removing a package to the Julia project, regenerate the manifest with `julia --project=. -e 'using Pkg; Pkg.resolve()'`
 
 ## Credits
 
