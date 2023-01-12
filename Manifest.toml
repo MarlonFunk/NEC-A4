@@ -2,7 +2,7 @@
 
 julia_version = "1.8.2"
 manifest_format = "2.0"
-project_hash = "c64582324ffbb0a74ac5f4082eb02374cd9308c8"
+project_hash = "3b3264893ab6f48e4be87aacd289ddf0cecc186f"
 
 [[deps.ArnoldiMethod]]
 deps = ["LinearAlgebra", "Random", "StaticArrays"]
@@ -111,6 +111,11 @@ version = "0.4.2"
 [[deps.Future]]
 deps = ["Random"]
 uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
+
+[[deps.Glob]]
+git-tree-sha1 = "4df9f7e06108728ebf00a0a11edee4b29a482bb2"
+uuid = "c27321d9-0574-5035-807b-f59d2c89b15c"
+version = "1.3.0"
 
 [[deps.GraphIO]]
 deps = ["DelimitedFiles", "Graphs", "Requires", "SimpleTraits"]
