@@ -312,10 +312,11 @@ let Population = initalize_population!(size_population, number_of_nodes)
             Fitness = get_fitness!(Population, g)
             
         end # end for
-
+        best_modularity = get_modularity!(max_fitness_population[fittest_indivdual!(Fitness)], g)
         println("------------------------------")
         println("Computation complete!")
         println("Optimal fitness: $max_fitness")
+        println("Our modularity: $best_modularity")
         max_fitness_population_reordered = map(x->Integer(x)+1, max_fitness_population[fittest_indivdual!(Fitness)])
         println("Reference modularity from Graphs.jl: $(modularity(g, max_fitness_population_reordered))")
         # println("Optimal population: $max_fitness_population")
