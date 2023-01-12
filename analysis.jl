@@ -1,4 +1,4 @@
-graphs = ["dolphins.net", "20x2+5x2.net", "256_4_4_2_15_18_p.net", "256_4_4_4_13_18_p.net", "adjnoun.net", "cat_cortex_sim.net", "circle9.net", "clique_stars.net", "cliques_line.net", "graph3+1+3.net", "graph3+2+3.net", "grid-6x6.net", "grid-p-6x6.net", "qns04_d.net", "rb25.net", "rb125.net", "rhesus_simetrica.net", "star.net", "wheel.net", "zachary_unwh.net"]
+graphs = ["dolphins.net", "20x2+5x2.net", "256_4_4_2_15_18_p.net", "256_4_4_4_13_18_p.net", "adjnoun.net", "cat_cortex_sim.net", "circle9.net", "clique_stars.net", "cliques_line.net", "graph3+1+3.net", "graph3+2+3.net", "grid-6x6.net", "grid-p-6x6.net", "qns04_d.net", "rb25.net", "rb125.net", "rhesus_simetrica.net", "zachary_unwh.net"]
 population_sizes = [25, 50, 100]
 # In the beginning everything is total random, at a random point the fitness increases fast until it reaches the maximum.
 # The beginning can be < 50 or > 500. So a high fitness can appear befor 50 generations or after 500.
