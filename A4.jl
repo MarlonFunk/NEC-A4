@@ -194,6 +194,18 @@ function fittest_indivdual!(fitness)
 end
 
 """
+    saveclu(io, g, gname="g")
+Write a vecotr `g` to an IO stream `io` in the Pajek CLU format. Return 1 (number of graphs written).
+"""
+function saveclu(io::IO, g::Vector{Int64}, gname::String = "g")
+    println(io, "*Vertices $(length(g))")
+    for i in eachindex(g)
+        println(io, g[i])
+    end
+    return 1
+end
+
+"""
 v = vertices(g) # Kind of iterator
 number_of_nodes = nv(g) # Int
 e = edges(g)    # Kind of iterator
@@ -304,9 +316,14 @@ let Population = initalize_population!(size_population, number_of_nodes)
         println("------------------------------")
         println("Computation complete!")
         println("Optimal fitness: $max_fitness")
-        println("Reference modularity from Graphs.jl: $(modularity(g, map(x->Integer(x)+1, max_fitness_population[fittest_indivdual!(Fitness)])))")
+        max_fitness_population_reordered = map(x->Integer(x)+1, max_fitness_population[fittest_indivdual!(Fitness)])
+        println("Reference modularity from Graphs.jl: $(modularity(g, max_fitness_population_reordered))")
         # println("Optimal population: $max_fitness_population")
         println("------------------------------")
+
+        # Save the highest modularity partition found, in Pajek format (*.clu)
+        clu_parameters_filename = "$(splitext(basename(graph_path))[1])_$(size_population)_$(num_generations)_$(amount_of_mutations)_$(selection_str)_$(crossover_str).clu"
+        saveclu(open("output/$clu_parameters_filename", "w"), max_fitness_population_reordered)
 
         if outfile != ""  
             # Save the parameters and results in a CSV file
@@ -327,4 +344,3 @@ let Population = initalize_population!(size_population, number_of_nodes)
         # save(SVG("plot.svg"), t)
     end #end let
 end #end let
-

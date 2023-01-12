@@ -1,4 +1,7 @@
 # Evaluation results (build artifacts)
 results/*
 !results/README.md
-results.zip
+
+# CLU output files (build artifacts)
+output/*
+!output/README.md
