@@ -23,7 +23,7 @@ function get_modularity!(chromosome, g)
     TWOL = ne(g)*2
     a = adjacency_matrix(g)
     number_of_nodes = nv(g)
-    Edges = [] # variable edges already taken in library
+    Edges = [] # variable edges already taken isn library
     for i in 1:number_of_nodes
         push!(Edges, sum(a[i,:]))
     end
@@ -98,7 +98,7 @@ function tournament_selection!(population, fitness, size_population)
             end
         end
         tmp_fitness = 0
-        index = 0
+        index = 1
         
         for x in eachindex(first_selection) # Get element with highest fitness of three randomly selected
             if tmp_fitness < first_selection[x][2]
