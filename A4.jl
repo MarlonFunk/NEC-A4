@@ -304,6 +304,7 @@ let Population = initalize_population!(size_population, number_of_nodes)
         println("------------------------------")
         println("Computation complete!")
         println("Optimal fitness: $max_fitness")
+        println("Reference modularity from Graphs.jl: $(modularity(g, map(x->Integer(x)+1, max_fitness_population[fittest_indivdual!(Fitness)])))")
         # println("Optimal population: $max_fitness_population")
         println("------------------------------")
 
