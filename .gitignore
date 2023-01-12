@@ -1,3 +1,4 @@
 # Evaluation results (build artifacts)
 results/*
 !results/README.md
+results.zip
