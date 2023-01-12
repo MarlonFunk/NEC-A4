@@ -21,7 +21,7 @@ julia --project=. A4.jl <graph_path> <population_size> <number_of_generations> <
 > The crossover functions implemented are the following: `one_point`, `uniform`.
 
 
-<details open="close">
+<details>
     <summary>Best parameters</summary>
     <p>
     <p>----------------------------------------<br />NET Graph: 20x2+5x2.net<br />----------------------------------------<br />Population Size: 100<br />Number of Generations: 500<br />Amount of Mutations: 1<br />Selection Function: tournament<br />Crossover Function: uniform<br />Max Fitness: 17.21811301763276</p>
