@@ -72,7 +72,7 @@ function get_fitness!(population, g)
     all_modularitys = []
     for chromosome in population
         push!(fitness,(get_modularity!(chromosome, g)).^2)
-        # push!(fitness,abs(get_modularity!(chromosome, g)))
+        #push!(fitness,abs(get_modularity!(chromosome, g)))
 
         # TODO for optional task: How to get new adjacency_matrix of splitted chromosome? Or is it just with delta?
         # push!(fitness, get_modularity_optional!(chromosome, g, 0, 0, all_modularitys))
@@ -85,7 +85,7 @@ function tournament_selection!(population, fitness, size_population)
     # tournament_selection
 
     selec = []
-    for i in 1:2 # rand gives random index of 
+    for i in 1:2 
         K = 3
         index = []
         for i in 1:K # Get three random indices
@@ -257,27 +257,19 @@ let Population = initalize_population!(size_population, number_of_nodes)
     let Fitness = get_fitness!(Population, g)
         max_fitness = 0
         max_fitness_population = []
-        sum_fitness = sum(Fitness)
-
+        current_fitness = 0
+        
+        current_fitness = Fitness[fittest_indivdual!(Fitness)]
+        # Check for optimum in the beginning, random initialization could be the optimal one
+        if current_fitness > max_fitness
+            max_fitness = current_fitness
+            max_fitness_chromosome = Population[fittest_indivdual!(Fitness)]
+        end
+        
         for generation in 1:num_generations
             population_prime = []
 
-            println("------------------------------")
-            println("Generation: $generation")
-            println("Current fitness: $sum_fitness")
-            println("Optimal fitness: $max_fitness")
-            println("------------------------------")
-
             for a in 1:size_population/2
-                sum_fitness = sum(Fitness)
-                # Check for optimum in the beginning, random initialization could be the optimal one
-                if sum_fitness > max_fitness
-                    max_fitness = sum_fitness
-                    max_fitness_population = Population
-                end
-
-
-
                 # Select two individuals c_alpha, c_beta from P
                 # Here we can choose from p.39 - p.45 what is the easiest?
                 
@@ -310,14 +302,27 @@ let Population = initalize_population!(size_population, number_of_nodes)
 
             # Evaluate fitness of all individuals in p
             Fitness = get_fitness!(Population, g)
+            current_fitness = Fitness[fittest_indivdual!(Fitness)]
+            
+            # Check for optimum in the beginning, random initialization could be the optimal one
+            if current_fitness > max_fitness
+                max_fitness = current_fitness
+                max_fitness_chromosome = Population[fittest_indivdual!(Fitness)]
+            end
+            
+            println("------------------------------")
+            println("Generation: $generation")
+            println("Current fitness: $current_fitness")
+            println("Optimal fitness: $max_fitness")
+            println("------------------------------")
             
         end # end for
-        best_modularity = get_modularity!(max_fitness_population[fittest_indivdual!(Fitness)], g)
+        best_modularity = get_modularity!(max_fitness_chromosome, g)
         println("------------------------------")
         println("Computation complete!")
         println("Optimal fitness: $max_fitness")
         println("Our modularity: $best_modularity")
-        max_fitness_population_reordered = map(x->Integer(x)+1, max_fitness_population[fittest_indivdual!(Fitness)])
+        max_fitness_population_reordered = map(x->Integer(x)+1, max_fitness_chromosome)
         println("Reference modularity from Graphs.jl: $(modularity(g, max_fitness_population_reordered))")
         # println("Optimal population: $max_fitness_population")
         println("------------------------------")
