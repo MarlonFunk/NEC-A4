@@ -17,14 +17,14 @@ else
     println("done.")
 end
 
-# get the maximum of Max Fitness for each NET Graph and display the parameters for it
+# get the maximum of Max modularity for each NET Graph and display the parameters for it
 # these are the best parameters for each NET Graph
 for graph in unique(df[!, "NET Graph"])
     println("----------------------------------------")
     println("NET Graph: $graph")
     println("----------------------------------------")
     entry = df[df[!, "NET Graph"] .== graph, :]
-    entry = entry[entry[!, "Max Fitness"] .== maximum(entry[!, "Max Fitness"]), :]
+    entry = entry[entry[!, "Max modularity"] .== maximum(entry[!, "Max modularity"]), :]
     println("Population Size: $(entry[!, "Population Size"][1])")
     println("Number of Generations: $(entry[!, "Number of Generations"][1])")
     println("Amount of Mutations: $(entry[!, "Amount of Mutations"][1])")
