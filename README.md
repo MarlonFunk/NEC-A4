@@ -17,7 +17,7 @@ Run the algorithm by doing:
 ```sh
 julia --project=. A4.jl <graph_path> <population_size> <number_of_generations> <amount_of_mutations> <selection_function> <crossover_function>
 ```
-> **Note** The selection functions implemented are the following: `roulette`, `tournament`.
+> **Note** The selection functions implemented are the following: `roulette`, `tournament` and `rank`.
 > The crossover functions implemented are the following: `one_point`, `uniform`.
 
 
