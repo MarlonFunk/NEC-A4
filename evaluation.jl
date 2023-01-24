@@ -31,5 +31,6 @@ for graph in unique(df[!, "NET Graph"])
     println("Selection Function: $(entry[!, "Selection Function"][1])")
     println("Crossover Function: $(entry[!, "Crossover Function"][1])")
     println("Max Fitness: $(entry[!, "Max Fitness"][1])")
+    println("Max Modularity: $(entry[!, "Max Modularity"][1])")
     println()
 end

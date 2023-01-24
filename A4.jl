@@ -356,7 +356,7 @@ let Population = initalize_population!(size_population, number_of_nodes)
         max_fitness_population_reordered = map(x->Integer(x)+1, max_fitness_chromosome)
         println("Reference modularity from Graphs.jl: $(modularity(g, max_fitness_population_reordered))")
         # println("Optimal population: $max_fitness_population")
-        println("Modularities evolving over generations: $highest_modularities")
+        #println("Modularities evolving over generations: $highest_modularities")
         println("------------------------------")
         # Save the highest modularity partition found, in Pajek format (*.clu)
         clu_parameters_filename = "$(splitext(basename(graph_path))[1])_$(size_population)_$(num_generations)_$(amount_of_mutations)_$(selection_str)_$(crossover_str).clu"
@@ -370,7 +370,8 @@ let Population = initalize_population!(size_population, number_of_nodes)
                 "Amount of Mutations" => amount_of_mutations,
                 "Selection Function" => selection_str,
                 "Crossover Function" => crossover_str,
-                "Max Fitness" => max_fitness
+                "Max Fitness" => max_fitness,
+                "Max modularity" => best_modularity
             ), append = false)
         end
 

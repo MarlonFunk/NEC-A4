@@ -8,3 +8,4 @@ output/*
 test.jl
 plots/optimal-zach.jpg
 results/README.md
+analysis.jl
