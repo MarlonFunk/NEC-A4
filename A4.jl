@@ -6,7 +6,7 @@ using StatsBase
 import DataFrames
 import CSV
 
-@enum Selection tournament=1 roulette=2
+@enum Selection tournament=1 roulette=2 rank=3
 @enum Crossover one_point=1 uniform=2
 
 function initalize_population!(size_population, number_of_nodes)
@@ -127,7 +127,26 @@ function roulette_selection!(population, fitness, size_population)
     return selec
 end
 
+function rank_selection!(population, fitness)
+    combined = [];
+    sum_ranks = 0;
+    for x in eachindex(population)
+        push!(combined, (population[x], fitness[x]))
+        sum_ranks += x;
+    end
 
+    #Sort by increasing fitness
+    sort!(combined, by = x -> x[2])
+    propabilities = []
+    # c equals rank
+    for c in eachindex(population)
+        tmp_propability = c/sum_ranks
+        push!(propabilities, tmp_propability)
+    end
+    selec = sample(population, Weights(Float64.(propabilities)),2, replace=false)
+
+    return selec
+end
 function uniform_crossover!(first_chromosome, second_chromosome)
     # Uniform crossover p.49 - Swap each gene with probability 0.5
     index = rand((0,1), length(first_chromosome)) # TODO: is that probability 0.5?
@@ -212,6 +231,14 @@ e = edges(g)    # Kind of iterator
 
 """
 
+# graph_path="A4-networks/zachary_unwh.net"
+# size_population=50 
+# num_generations=1000
+# amount_of_mutations=1
+# selection_str="rank"
+# crossover_str="uniform" 
+# outfile="results/zachary_unwh.net-100-500-1-tournament-one_point.csv"
+
 # We parse the parameters
 
 if length(ARGS) != 6 && length(ARGS) != 7
@@ -219,9 +246,9 @@ if length(ARGS) != 6 && length(ARGS) != 7
 end
 
 graph_path = ARGS[1]
-
 g = loadgraph(graph_path, NETFormat())
 number_of_nodes = nv(g)
+
 
 # Define size of population and number of generations
 size_population = parse(Int64, ARGS[2])
@@ -232,6 +259,8 @@ selection::Selection = if selection_str == "tournament"
     tournament::Selection
 elseif selection_str == "roulette"
     roulette::Selection
+elseif selection_str == "rank"
+    rank::Selection
 else
     throw(ArgumentError("This selection function is not recognized"))
 end
@@ -258,7 +287,7 @@ let Population = initalize_population!(size_population, number_of_nodes)
         max_fitness = 0
         max_fitness_population = []
         current_fitness = 0
-        
+        highest_modularities = []
         current_fitness = Fitness[fittest_indivdual!(Fitness)]
         # Check for optimum in the beginning, random initialization could be the optimal one
         if current_fitness > max_fitness
@@ -277,8 +306,9 @@ let Population = initalize_population!(size_population, number_of_nodes)
                     c_alpha, c_beta = tournament_selection!(Population, Fitness, size_population)
                 elseif selection == roulette::Selection
                     c_alpha, c_beta = roulette_selection!(Population, Fitness, size_population)
+                elseif selection == rank::Selection
+                    c_alpha, c_beta = rank_selection!(Population, Fitness)
                 end
-                
                 # # Crossover c_alpha_prime, c_beta_prime
                 # Uniform crossover p.49 - Swap each gene with probability 0.5
                 if crossover == uniform::Crossover
@@ -308,13 +338,14 @@ let Population = initalize_population!(size_population, number_of_nodes)
             if current_fitness > max_fitness
                 max_fitness = current_fitness
                 max_fitness_chromosome = Population[fittest_indivdual!(Fitness)]
+                push!(highest_modularities, generation, get_modularity!(max_fitness_chromosome, g))
             end
             
-            println("------------------------------")
-            println("Generation: $generation")
-            println("Current fitness: $current_fitness")
-            println("Optimal fitness: $max_fitness")
-            println("------------------------------")
+            # println("------------------------------")
+            # println("Generation: $generation")
+            # println("Current fitness: $current_fitness")
+            # println("Optimal fitness: $max_fitness")
+            # println("------------------------------")
             
         end # end for
         best_modularity = get_modularity!(max_fitness_chromosome, g)
@@ -325,12 +356,11 @@ let Population = initalize_population!(size_population, number_of_nodes)
         max_fitness_population_reordered = map(x->Integer(x)+1, max_fitness_chromosome)
         println("Reference modularity from Graphs.jl: $(modularity(g, max_fitness_population_reordered))")
         # println("Optimal population: $max_fitness_population")
+        println("Modularities evolving over generations: $highest_modularities")
         println("------------------------------")
-
         # Save the highest modularity partition found, in Pajek format (*.clu)
         clu_parameters_filename = "$(splitext(basename(graph_path))[1])_$(size_population)_$(num_generations)_$(amount_of_mutations)_$(selection_str)_$(crossover_str).clu"
         saveclu(open("output/$clu_parameters_filename", "w"), max_fitness_population_reordered)
-
         if outfile != ""  
             # Save the parameters and results in a CSV file
             CSV.write(outfile, DataFrames.DataFrame(
@@ -344,6 +374,7 @@ let Population = initalize_population!(size_population, number_of_nodes)
             ), append = false)
         end
 
+        
         # How to safe the graph?
         # savegraph("optimal.lgz", max_fitness_population)
         # t = plot(max_fitness_population)

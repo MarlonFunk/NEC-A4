@@ -5,3 +5,6 @@ results/*
 # CLU output files (build artifacts)
 output/*
 !output/README.md
+test.jl
+plots/optimal-zach.jpg
+results/README.md
